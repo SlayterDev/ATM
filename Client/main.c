@@ -14,5 +14,8 @@ int main(int argc, char const *argv[]) {
 
 	welcome();
 
+	close(sockDesc);
+	printf("Socket closed\n");
+
 	return 0;
 }

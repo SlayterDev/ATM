@@ -47,6 +47,12 @@ int sendMessage(char *message) {
 		exit(1);
 	}
 
+	// Flush the buffer
+	char ch;
+	while ((ch = getchar()) != '\n' && ch != EOF);
+
+	//getchar();
+
 	int resp = atoi(serverReply);
 
 	return resp;

@@ -46,6 +46,11 @@ void serverLoop(int portNum) {
         printf("Recieved: %s\n> ", clientMessage);
         memset(serverMessage, 0, sizeof(serverMessage)); // clear server buffer
         fgets(serverMessage, 256, stdin);
+
+        // trim trailing newline
+        if (serverMessage[strlen(serverMessage)-1] == '\n')
+        	serverMessage[strlen(serverMessage)-1] = '\0';
+
         write(clientSock , serverMessage , strlen(serverMessage));
         memset(clientMessage, 0, sizeof(clientMessage)); // clear client buffer
     }
