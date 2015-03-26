@@ -4,6 +4,7 @@
 #define ACCOUNT_BUFFER_SIZE 111
 #define LOGIN_BUFFER_SIZE 30
 #define AMOUNT_BUFFER_SIZE 15
+#define TRANSACTION_BUFFER_SIZE 6
 
 void createAccount() {
 	char message[ACCOUNT_BUFFER_SIZE] = "";
@@ -161,6 +162,68 @@ void deposit() {
 	free(resp); // free the response
 }
 
+void showBalance() {
+	char message[] = "501";
+
+	char *resp = sendMessageWithResponse(message);
+	char *tok = strtok(resp, " ");
+
+	int respCode = atoi(tok);
+	tok = strtok(NULL, " "); // tok now has balance
+
+	system("clear");
+	if (respCode == 503) {
+		printf("[+] Your balance is $%s\n\n", tok);
+	} else {
+		printf("[-] An unknown error has occured\n\n");
+	}
+
+	free(resp); // free response from server
+}
+
+void showTransactions() {
+	system("clear");
+
+	char message[TRANSACTION_BUFFER_SIZE] = "";
+
+	printf("Enter number of transactions to show: ");
+	int numTransactions;
+	scanf("%d", &numTransactions);
+	sprintf(message, "601 %d", numTransactions);
+
+	char *resp = sendMessageWithResponse(message);
+	char *tok = strtok(resp, " "); // response code
+	int respCode = atoi(tok);
+
+	if (respCode == 603) {
+		// show transactions
+		tok = strtok(NULL, " "); // number transactions returned
+		int numReturned = atoi(tok);
+
+		printf("\n\nShowing last %d transactions:\n\n", numReturned);
+
+		int i;
+		printf("id Description     Amount\n");
+		printf("=========================\n");
+		for (i = 0; i < numReturned; i++) {
+			// Jank hacky way to get the data
+			printf("%-2s %-15s $%s\n", strtok(NULL, " "), strtok(NULL, " "),
+								strtok(NULL, " "));
+		}
+
+		printf("\n\nPress enter to continue...");
+		int enter = 0;
+		while (enter != '\r' && enter != '\n') { 
+			enter = getchar(); 
+		}
+
+		system("clear");
+	} else {
+		system("clear");
+		printf("[-] An unknown error has occured\n\n");
+	}
+}
+
 void userMenu() {
 	char c = '1';
 
@@ -182,6 +245,12 @@ void userMenu() {
 				break;
 			case '2':
 				deposit();
+				break;
+			case '3':
+				showBalance();
+				break;
+			case '4':
+				showTransactions();
 				break;
 			case '6':
 				return;
