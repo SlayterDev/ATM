@@ -71,7 +71,7 @@ void withdraw() {
 	char message[AMOUNT_BUFFER_SIZE] = "";
 
 	printf("Withdrawing...\n");
-	printf("Enter amount you'd like to withdraw\n");
+	printf("Enter amount you\'d like to withdraw\n");
 	printf("Enter $0 to cancel: $");
 
 	int amount;
@@ -83,8 +83,7 @@ void withdraw() {
 	}
 
 	sprintf(message, "401 %d", amount);
-	printf("%s\n", message);
-	
+
 	// TODO: Check ATM has enough cash
 
 	char *resp = sendMessageWithResponse(message);
@@ -105,7 +104,7 @@ void withdraw() {
 			break;
 		case 404:
 			printf("[-] You do not have enough funds\n");
-			printf("[-] Your balance is now $%s\n\n", tok);
+			printf("[-] Your balance is $%s\n\n", tok);
 			break;
 		default:
 			break;
@@ -113,6 +112,53 @@ void withdraw() {
 
 	free(resp); // Free pointer from sendMessage
 
+}
+
+void deposit() {
+	system("clear");
+
+	char message[AMOUNT_BUFFER_SIZE] = "";
+
+	printf("Enter amount you\'d like to deposit\n");
+	printf("Enter $0 to cancel: $");
+
+	int amount;
+	scanf("%d", &amount);
+
+	if (amount == 0) {
+		system("clear");
+		return;
+	}
+
+	sprintf(message, "301 %d", amount);
+
+	// TODO: Check if ATM can take it ;)
+
+	char *resp = sendMessageWithResponse(message);
+	char *tok = strtok(resp, " ");
+
+	int respCode = atoi(tok); // Get the response code
+	tok = strtok(NULL, " ");
+
+	int i = 0;
+	while (isdigit(tok[i++])); // strtok() gives garbage sometimes
+	tok[i] = '\0';
+
+	system("clear");
+	switch (respCode) {
+		case 303:
+			printf("[+] Deposit successful!\n");
+			printf("[+] Your balance is now $%s\n\n", tok);
+			break;
+		case 304:
+			printf("[-] Deposit failed\n");
+			printf("[-] Your balance is $%s\n\n", tok);
+			break;
+		default:
+			break;
+	}
+
+	free(resp); // free the response
 }
 
 void userMenu() {
@@ -133,6 +179,9 @@ void userMenu() {
 		switch (c) {
 			case '1':
 				withdraw();
+				break;
+			case '2':
+				deposit();
 				break;
 			case '6':
 				return;

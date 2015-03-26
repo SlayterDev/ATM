@@ -64,13 +64,13 @@ char *sendMessageWithResponse(char *message) {
 		exit(1);
 	}
 
-	char serverReply[2000]; // Can't be to careful
+	char serverReply[2000] = ""; // Can't be to careful
 	if (recv(sockDesc, serverReply, 2000, 0) < 0) {
 		fprintf(stderr, "[-] Failed to receive message\n");
 		exit(1);
 	}
 
-	char *response = (char *)malloc(strlen(serverReply));
+	char *response = (char *)malloc(strlen(serverReply)+1);
 	strcpy(response, serverReply);
 
 	// Flush the buffer

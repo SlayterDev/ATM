@@ -51,7 +51,7 @@ void serverLoop(int portNum) {
         if (serverMessage[strlen(serverMessage)-1] == '\n')
         	serverMessage[strlen(serverMessage)-1] = '\0';
 
-        write(clientSock , serverMessage , strlen(serverMessage));
+        send(clientSock , serverMessage , strlen(serverMessage), 0);
         memset(clientMessage, 0, sizeof(clientMessage)); // clear client buffer
     }
 }
