@@ -57,3 +57,25 @@ int sendMessage(char *message) {
 
 	return resp;
 }
+
+char *sendMessageWithResponse(char *message) {
+	if (send(sockDesc, message, strlen(message), 0) < 0) {
+		fprintf(stderr, "[-] Failed to send message\n");
+		exit(1);
+	}
+
+	char serverReply[2000]; // Can't be to careful
+	if (recv(sockDesc, serverReply, 2000, 0) < 0) {
+		fprintf(stderr, "[-] Failed to receive message\n");
+		exit(1);
+	}
+
+	char *response = (char *)malloc(strlen(serverReply));
+	strcpy(response, serverReply);
+
+	// Flush the buffer
+	char ch;
+	while ((ch = getchar()) != '\n' && ch != EOF);
+
+	return response;
+}

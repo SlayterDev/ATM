@@ -3,6 +3,7 @@
 
 #define ACCOUNT_BUFFER_SIZE 111
 #define LOGIN_BUFFER_SIZE 30
+#define AMOUNT_BUFFER_SIZE 15
 
 void createAccount() {
 	char message[ACCOUNT_BUFFER_SIZE] = "";
@@ -64,6 +65,56 @@ void createAccount() {
 	}
 }
 
+void withdraw() {
+	system("clear");
+
+	char message[AMOUNT_BUFFER_SIZE] = "";
+
+	printf("Withdrawing...\n");
+	printf("Enter amount you'd like to withdraw\n");
+	printf("Enter $0 to cancel: $");
+
+	int amount;
+	scanf("%d", &amount);
+
+	if (amount == 0) {
+		system("clear");
+		return;
+	}
+
+	sprintf(message, "401 %d", amount);
+	printf("%s\n", message);
+	
+	// TODO: Check ATM has enough cash
+
+	char *resp = sendMessageWithResponse(message);
+	char *tok = strtok(resp, " ");
+
+	int respCode = atoi(tok);  // Get the response code
+	tok = strtok(NULL, " ");   // tok now has the balance
+
+	int i = 0;
+	while (isdigit(tok[i++])); // Shouldn't have to do this
+	tok[i] = '\0';			   // but strtok() keeps giving garbage
+
+	system("clear");
+	switch (respCode) {
+		case 403:
+			printf("[+] Your cash is being dispensed\n");
+			printf("[+] Your balance is now $%s\n\n", tok);
+			break;
+		case 404:
+			printf("[-] You do not have enough funds\n");
+			printf("[-] Your balance is now $%s\n\n", tok);
+			break;
+		default:
+			break;
+	}
+
+	free(resp); // Free pointer from sendMessage
+
+}
+
 void userMenu() {
 	char c = '1';
 
@@ -81,7 +132,7 @@ void userMenu() {
 
 		switch (c) {
 			case '1':
-				createAccount();
+				withdraw();
 				break;
 			case '6':
 				return;
@@ -95,6 +146,8 @@ void userMenu() {
 }
 
 void login() {
+	system("clear");
+
 	char message[LOGIN_BUFFER_SIZE] = "";
 
 	strcat(message, "201 ");

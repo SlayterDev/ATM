@@ -1,2 +1,5 @@
 03-25: Wrote program to fake status codes so that server and client can be developed independently.
 	   Client connects to server. Can send create account request.
+
+03-26: Added authentication by name and pin with the server
+	   Added withdraw functionality (need to add checks for amount of cash in ATM).
