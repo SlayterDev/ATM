@@ -2,9 +2,10 @@
 #include "net.h"
 
 #define ACCOUNT_BUFFER_SIZE 111
+#define LOGIN_BUFFER_SIZE 30
 
 void createAccount() {
-	char message[ACCOUNT_BUFFER_SIZE];
+	char message[ACCOUNT_BUFFER_SIZE] = "";
 	
 	system("clear");
 	
@@ -63,6 +64,74 @@ void createAccount() {
 	}
 }
 
+void userMenu() {
+	char c = '1';
+
+	while (c != '3') {
+		printf("Welcome...\n");
+		printf("1. Withdraw\n");
+		printf("2. Deposit\n");
+		printf("3. Show Balance\n");
+		printf("4. Show transactions\n");
+		printf("5. Buy stamps\n");
+		printf("6. Logout\n");
+		printf("\nEnter your selection then press enter: ");
+
+		scanf("%c", &c);
+
+		switch (c) {
+			case '1':
+				createAccount();
+				break;
+			case '6':
+				return;
+				break;
+			default:
+				system("clear");
+				printf("Invalid input (%c) please try again\n\n", c);
+				break;
+		}
+	}
+}
+
+void login() {
+	char message[LOGIN_BUFFER_SIZE] = "";
+
+	strcat(message, "201 ");
+
+	char buffer[21] = "";
+	char firstName[21] = "";
+	printf("Enter first name: ");
+	scanf("%s", buffer);
+	strcpy(firstName, buffer);
+	strcat(message, buffer); // add first name
+	strcat(message, " ");
+
+	printf("Enter pin: ");
+	scanf("%s", buffer);
+	strcat(message, buffer); // add pin number
+
+	int resp = sendMessage(message);
+
+	system("clear");
+	switch (resp) {
+		case 203:
+			printf("[-] Authentication failure. Try again.\n\n");
+			break;
+		case 204:
+			printf("[-] Too many failed login attempts.\n");
+			printf("[-] Terminating...\n");
+			close(sockDesc);
+			exit(1);
+			break;
+		case 205:
+			printf("[+] Authentication successful!\n");
+			printf("[+] Welcome, %s\n\n", firstName);
+			userMenu();
+			break;
+	}
+}
+
 void welcome() {
 	char c = '1';
 
@@ -78,6 +147,9 @@ void welcome() {
 		switch (c) {
 			case '1':
 				createAccount();
+				break;
+			case '2':
+				login();
 				break;
 			case '3':
 				return;
