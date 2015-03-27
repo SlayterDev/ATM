@@ -1,6 +1,7 @@
 #include "globals.h"
 #include "net.h"
 #include "view.h"
+#include "fileUtils.h"
 
 int main(int argc, char const *argv[]) {
 	if (argc < 2 || argc > 3) {
@@ -13,6 +14,8 @@ int main(int argc, char const *argv[]) {
 	system("clear");
 
 	initNet(atoi(argv[1]), (argc == 3) ? argv[2] : NULL);
+
+	loadData();
 
 	welcome();
 

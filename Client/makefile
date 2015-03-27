@@ -1,4 +1,4 @@
-SOURCES := main.o net.o view.o
+SOURCES := main.o net.o view.o fileUtils.o
 
 all: $(SOURCES)
 	cc $(SOURCES) -o Client

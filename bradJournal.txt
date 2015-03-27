@@ -9,3 +9,6 @@
 03-27: Added buy stamps.
 	   Added logout function.
 	   Fixed a bug in show transactions where arguments were reversed. Learned that Linux processes printf arguments backwards and OS X goes forwards.
+	   Added some documentation.
+	   Added handling for checking cash and stamps in ATM.
+	   Added a data file to track amount of cash and stamps in ATM.

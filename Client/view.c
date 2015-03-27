@@ -1,9 +1,10 @@
 #include "view.h"
 #include "net.h"
+#include "fileUtils.h"
 
-#define ACCOUNT_BUFFER_SIZE 111
-#define LOGIN_BUFFER_SIZE 30
-#define AMOUNT_BUFFER_SIZE 15
+#define ACCOUNT_BUFFER_SIZE 	111
+#define LOGIN_BUFFER_SIZE 		30
+#define AMOUNT_BUFFER_SIZE 		15
 #define TRANSACTION_BUFFER_SIZE 6
 
 void createAccount() {
@@ -86,7 +87,19 @@ void withdraw() {
 
 	sprintf(message, "401 %d", amount);
 
-	// TODO: Check ATM has enough cash
+	if (amount > cashInATM) {
+		// Tell the server there isn't enough cash
+		int code = sendMessage("402");
+
+		system("clear");
+		if (code == 405) {
+			printf("[-] We\'re sorry. They ATM cannot dispense this amount currently.\n\n");
+		} else {
+			printf("[-] An unknown error has occured. (%d)\n\n", code);
+		}
+
+		return;
+	}
 
 	char *resp = sendMessageWithResponse(message);
 	char *tok = strtok(resp, " ");
@@ -103,6 +116,9 @@ void withdraw() {
 		case 403:
 			printf("[+] Your cash is being dispensed\n");
 			printf("[+] Your balance is now $%s\n\n", tok);
+
+			cashInATM -= amount;
+			dataChanged();
 			break;
 		case 404:
 			printf("[-] You do not have enough funds\n");
@@ -136,7 +152,26 @@ void deposit() {
 
 	sprintf(message, "301 %d", amount);
 
-	// TODO: Check if ATM can take it ;)
+	if (cashInATM + amount > MAX_CASH) {
+		// Too much money in ATM
+
+		char *fullMessage = sendMessageWithResponse("302");
+
+		char *tok = strtok(fullMessage, " ");
+		int code = atoi(tok);
+		tok = strtok(NULL, " ");
+
+		system("clear");
+		if (code == 305) {
+			printf("[-] We\'re sorry. This ATM cannot take this amount currently.\n");
+			printf("[+] You\'re balance is $%s\n\n", tok);
+		} else {
+			printf("[-] An unknown error has occured. (%d)\n\n", code);
+		}
+
+		free(fullMessage);
+		return;
+	}
 
 	char *resp = sendMessageWithResponse(message);
 	char *tok = strtok(resp, " ");
@@ -153,6 +188,9 @@ void deposit() {
 		case 303:
 			printf("[+] Deposit successful!\n");
 			printf("[+] Your balance is now $%s\n\n", tok);
+
+			cashInATM += amount;
+			dataChanged();
 			break;
 		case 304:
 			printf("[-] Deposit failed\n");
@@ -246,7 +284,19 @@ void buyStamps() {
 	char message[AMOUNT_BUFFER_SIZE] = "";
 	sprintf(message, "701 %d", numStamps);
 
-	// TODO: check # of stamps in machine
+	if (numStamps > stampsInATM) {
+		// Not enough stamps
+		int code = sendMessage("702");
+
+		system("clear");
+		if (code == 705) {
+			printf("[-] We\'re sorry. This ATM does not have enough stamps.\n\n");
+		} else {
+			printf("[-] An unknown error has occured (%d)\n\n", code);
+		}
+
+		return;
+	}
 
 	char *resp = sendMessageWithResponse(message);
 	char *tok = strtok(resp, " ");
@@ -258,6 +308,9 @@ void buyStamps() {
 		tok = strtok(NULL, " ");
 		printf("[+] Your stamps are being dispensed\n");
 		printf("[+] Your balance is now $%s\n\n", tok);
+
+		stampsInATM -= numStamps;
+		dataChanged();
 	} else if (respCode == 703) {
 		printf("[-] You don't have enough funds\n\n");
 	} else {
