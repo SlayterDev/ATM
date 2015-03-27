@@ -5,3 +5,6 @@
 	   Added withdraw functionality (need to add checks for amount of cash in ATM).
 	   Added deposit functionality (also needs checks).
 	   Added show transaction functionality.
+
+03-27: Added buy stamps.
+	   Added logout function.

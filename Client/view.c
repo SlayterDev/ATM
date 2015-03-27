@@ -224,10 +224,54 @@ void showTransactions() {
 	}
 }
 
+void buyStamps() {
+	system("clear");
+
+	printf("How many stamps would you like to buy? ($1 each): ");
+
+	int numStamps;
+	scanf("%d", &numStamps);
+
+	char message[AMOUNT_BUFFER_SIZE] = "";
+	sprintf(message, "701 %d", numStamps);
+
+	// TODO: check # of stamps in machine
+
+	char *resp = sendMessageWithResponse(message);
+	char *tok = strtok(resp, " ");
+	int respCode = atoi(tok); // response code
+
+	system("clear");
+	if (respCode == 704) {
+		// success
+		tok = strtok(NULL, " ");
+		printf("[+] Your stamps are being dispensed\n");
+		printf("[+] Your balance is now $%s\n\n", tok);
+	} else if (respCode == 703) {
+		printf("[-] You don't have enough funds\n\n");
+	} else {
+		printf("[-] An unknown error has occured\n\n");
+	}
+}
+
+void logout() {
+	char message[] = "801";
+
+	int resp = sendMessage(message);
+
+	system("clear");
+	if (resp == 803) {
+		printf("[+] You have been logged out\n");
+		printf("[+] Thank you for using our ATM\n\n");
+	} else {
+		printf("[-] An unknown error has occured\n\n");
+	}
+}
+
 void userMenu() {
 	char c = '1';
 
-	while (c != '3') {
+	while (c != '6') {
 		printf("Welcome...\n");
 		printf("1. Withdraw\n");
 		printf("2. Deposit\n");
@@ -252,8 +296,11 @@ void userMenu() {
 			case '4':
 				showTransactions();
 				break;
+			case '5':
+				buyStamps();
+				break;
 			case '6':
-				return;
+				logout();
 				break;
 			default:
 				system("clear");
@@ -321,6 +368,7 @@ void welcome() {
 				break;
 			case '2':
 				login();
+				c = '2';
 				break;
 			case '3':
 				return;

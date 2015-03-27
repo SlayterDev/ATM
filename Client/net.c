@@ -9,7 +9,7 @@ void sigtermHandler(int signum) {
 
 void debugPrints(const char *str) {
 	if (DEBUG)
-		printf("%s", str);
+		printf("[\033[31mDEBUG\033[0m]%s", str);
 }
 
 void initNet(int portNum) {

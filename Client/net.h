@@ -29,4 +29,15 @@ int sendMessage(char *message);
 */
 char *sendMessageWithResponse(char *message);
 
+/*
+ Print string to console for debug
+
+ If the DEBUG flag is set in globals.h, this function will print
+ the string. This is used for debugging info about the socket
+ code.
+
+ debugPrints takes a null terminated string
+*/
+void debugPrints(const char *str);
+
 #endif
