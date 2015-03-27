@@ -8,3 +8,4 @@
 
 03-27: Added buy stamps.
 	   Added logout function.
+	   Fixed a bug in show transactions where arguments were reversed. Learned that Linux processes printf arguments backwards and OS X goes forwards.
