@@ -10,6 +10,7 @@ void createAccount() {
 	char message[ACCOUNT_BUFFER_SIZE] = "";
 	
 	system("clear");
+	printf("Create an account...\n\n");
 	
 	strcat(message, "101 "); // Tell server to create account
 
@@ -61,7 +62,7 @@ void createAccount() {
 			printf("[-] Some info was missing. Please try again.\n\n");
 			break;
 		default:
-			printf("[-] An unknown error has occured. (Error code: %d)\n\n", resp);
+			printf("[-] An unknown error has occured. (%d)\n\n", resp);
 			break;
 	}
 }
@@ -71,7 +72,7 @@ void withdraw() {
 
 	char message[AMOUNT_BUFFER_SIZE] = "";
 
-	printf("Withdrawing...\n");
+	printf("Withdraw...\n\n");
 	printf("Enter amount you\'d like to withdraw\n");
 	printf("Enter $0 to cancel: $");
 
@@ -108,6 +109,7 @@ void withdraw() {
 			printf("[-] Your balance is $%s\n\n", tok);
 			break;
 		default:
+			printf("[-] An unknown error has occured (%d)\n\n", respCode);
 			break;
 	}
 
@@ -120,6 +122,7 @@ void deposit() {
 
 	char message[AMOUNT_BUFFER_SIZE] = "";
 
+	printf("Deposit...\n\n");
 	printf("Enter amount you\'d like to deposit\n");
 	printf("Enter $0 to cancel: $");
 
@@ -156,6 +159,7 @@ void deposit() {
 			printf("[-] Your balance is $%s\n\n", tok);
 			break;
 		default:
+			printf("[-] An unknown error has occured (%d)\n\n", respCode);
 			break;
 	}
 
@@ -175,7 +179,7 @@ void showBalance() {
 	if (respCode == 503) {
 		printf("[+] Your balance is $%s\n\n", tok);
 	} else {
-		printf("[-] An unknown error has occured\n\n");
+		printf("[-] An unknown error has occured (%d)\n\n", respCode);
 	}
 
 	free(resp); // free response from server
@@ -185,6 +189,8 @@ void showTransactions() {
 	system("clear");
 
 	char message[TRANSACTION_BUFFER_SIZE] = "";
+
+	printf("Show tranactions...\n\n");
 
 	printf("Enter number of transactions to show: ");
 	int numTransactions;
@@ -224,13 +230,14 @@ void showTransactions() {
 		system("clear");
 	} else {
 		system("clear");
-		printf("[-] An unknown error has occured\n\n");
+		printf("[-] An unknown error has occured (%d)\n\n", respCode);
 	}
 }
 
 void buyStamps() {
 	system("clear");
 
+	printf("Buy stamps...\n\n");
 	printf("How many stamps would you like to buy? ($1 each): ");
 
 	int numStamps;
@@ -254,8 +261,10 @@ void buyStamps() {
 	} else if (respCode == 703) {
 		printf("[-] You don't have enough funds\n\n");
 	} else {
-		printf("[-] An unknown error has occured\n\n");
+		printf("[-] An unknown error has occured (%d)\n\n", respCode);
 	}
+
+	free(resp);
 }
 
 void logout() {
@@ -268,7 +277,7 @@ void logout() {
 		printf("[+] You have been logged out\n");
 		printf("[+] Thank you for using our ATM\n\n");
 	} else {
-		printf("[-] An unknown error has occured\n\n");
+		printf("[-] An unknown error has occured (%d)\n\n", resp);
 	}
 }
 
@@ -276,7 +285,7 @@ void userMenu() {
 	char c = '1';
 
 	while (c != '6') {
-		printf("Welcome...\n");
+		printf("Welcome...\n\n");
 		printf("1. Withdraw\n");
 		printf("2. Deposit\n");
 		printf("3. Show Balance\n");
@@ -316,6 +325,8 @@ void userMenu() {
 
 void login() {
 	system("clear");
+
+	printf("Login...\n\n");
 
 	char message[LOGIN_BUFFER_SIZE] = "";
 
@@ -358,7 +369,7 @@ void welcome() {
 	char c = '1';
 
 	while (c != '3') {
-		printf("Welcome...\n");
+		printf("Welcome...\n\n");
 		printf("1. Create Account\n");
 		printf("2. Login with Pin\n");
 		printf("3. Quit\n");

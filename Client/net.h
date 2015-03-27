@@ -3,7 +3,13 @@
 
 #include "globals.h"
 
-// Initialize the connection to the server
+/* 
+ Initialize the connection to the server
+
+ The program will connect to "127.0.0.1" by default if no host
+ is provided. Enter a host address as a commandline argument to
+ connect to a specific address.
+*/
 void initNet(int portNum, const char *host);
 
 /* 

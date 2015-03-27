@@ -27,6 +27,11 @@ void initNet(int portNum, const char *host) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(portNum);
 
+	if (DEBUG) {
+		printf("[\033[31mDEBUG\033[0m][+] Connecting to %s\n", 
+				(host) ? host : "127.0.0.1");
+	}
+
 	if (connect(sockDesc, (struct sockaddr *)&server, sizeof(server)) < 0) {
 		fprintf(stderr, "[-] Could not connect to server\n");
 		exit(1);
