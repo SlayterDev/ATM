@@ -205,10 +205,14 @@ void showTransactions() {
 		int i;
 		printf("id Description     Amount\n");
 		printf("=========================\n");
+
+		char *id, *desc, *amnt; // pointers for strtok
 		for (i = 0; i < numReturned; i++) {
 			// Jank hacky way to get the data
-			printf("%-2s %-15s $%s\n", strtok(NULL, " "), strtok(NULL, " "),
-								strtok(NULL, " "));
+			id = strtok(NULL, " ");
+			desc = strtok(NULL, " ");
+			amnt = strtok(NULL, " ");
+			printf("%-2s %-15s $%s\n", id, desc, amnt);
 		}
 
 		printf("\n\nPress enter to continue...");
