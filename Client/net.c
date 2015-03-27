@@ -12,7 +12,7 @@ void debugPrints(const char *str) {
 		printf("[\033[31mDEBUG\033[0m]%s", str);
 }
 
-void initNet(int portNum) {
+void initNet(int portNum, const char *host) {
 	sockDesc = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockDesc == -1) {
 		fprintf(stderr, "[-] Could not create socket\n");
@@ -20,7 +20,10 @@ void initNet(int portNum) {
 	}
 	debugPrints("[+] Socket Created\n");
 
-	server.sin_addr.s_addr = inet_addr("127.0.0.1");
+	if (host)
+		server.sin_addr.s_addr = inet_addr(host);
+	else
+		server.sin_addr.s_addr = inet_addr("127.0.0.1");
 	server.sin_family = AF_INET;
 	server.sin_port = htons(portNum);
 

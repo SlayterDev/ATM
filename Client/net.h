@@ -4,7 +4,7 @@
 #include "globals.h"
 
 // Initialize the connection to the server
-void initNet(int portNum);
+void initNet(int portNum, const char *host);
 
 /* 
  Send a message to the server
