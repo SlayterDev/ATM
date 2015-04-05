@@ -1,5 +1,6 @@
 #include "globals.h"
 #include "net.h"
+#include "data.h"
 
 int main(int argc, char const *argv[]) {
 	if (argc < 2 || argc > 3) {
@@ -8,6 +9,8 @@ int main(int argc, char const *argv[]) {
 		fprintf(stderr, "host: address of server. Uses \"127.0.0.1\" by default.\n");
 		return 1;
 	}
+
+	readUsers();
 
 	beginServer(atoi(argv[1]));
 

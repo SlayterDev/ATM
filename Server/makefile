@@ -1,4 +1,4 @@
-SOURCES := main.o net.o
+SOURCES := main.o net.o worker.o data.o
 
 CFLAGS := -std=c99 -lpthread
 

@@ -6,5 +6,6 @@
 pthread_t clients[MAX_CLIENTS];
 
 void beginServer(int portnum);
+int writeToClient(int sockfd, char *message);
 
 #endif

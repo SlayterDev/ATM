@@ -1,4 +1,15 @@
 #include "net.h"
+#include "worker.h"
+
+int writeToClient(int sockfd, char *message) {
+	if (write(sockfd, message, strlen(message)) < 0) {
+		fprintf(stderr, "ERROR writing to socket\n");
+		int ret = 1;
+		pthread_exit(&ret);
+	}
+
+	return 0;
+}
 
 void *serverLoop(void *sockfdPtr) {
 	printf("Recieved Connection!\n");
@@ -8,18 +19,18 @@ void *serverLoop(void *sockfdPtr) {
 	int n, ret = 1;
 	char buffer[256];
 
-	n = read((int)sockfd, buffer, 255);
-	if (n < 0) {
-		fprintf(stderr, "ERROR reading from socket\n");
-		pthread_exit(&ret);
+	while ((n = read(sockfd, buffer, 255)) > 0) {
+		printf("Recieved: %s\n", buffer);
+		processRequest(sockfd, buffer);
+		//n = write(sockfd, "203", 3);
+
+		if (n < 0) {
+			fprintf(stderr, "ERROR writing to socket\n");
+			pthread_exit(&ret);
+		}
 	}
 
-	printf("Recieved: %s\n", buffer);
-	n = write((int)sockfd, "203", 3);
-
-	if (n < 0) {
-		fprintf(stderr, "ERROR writing to socket\n");
-	}
+	printf("Connection closed\n");
 
 	return NULL;
 }
@@ -51,7 +62,7 @@ void beginServer(int portnum) {
 	clilen = sizeof(cli_addr);
 
 	int clientNo = 0;
-	while (1) {
+	while (clientNo < MAX_CLIENTS) {
 		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 		if (newsockfd < 0) {
 			fprintf(stderr, "ERROR accepting connection\n");
@@ -63,7 +74,7 @@ void beginServer(int portnum) {
 			exit(1);
 		}
 
-		clientNo += 1;		
+		clientNo++;		
 	}
 
 	for (int i = 0; i < MAX_CLIENTS; i++) {
