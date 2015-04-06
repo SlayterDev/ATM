@@ -60,6 +60,8 @@ void beginServer(int portnum) {
 		exit(1);
 	}
 
+	printf("Server started...\nUse ^C to quit\n");
+
 	listen(sockfd, 5);
 	clilen = sizeof(cli_addr);
 
