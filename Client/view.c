@@ -329,6 +329,9 @@ void logout() {
 	if (resp == 803) {
 		printf("[+] You have been logged out\n");
 		printf("[+] Thank you for using our ATM\n\n");
+
+		close(sockDesc);
+		exit(0);
 	} else {
 		printf("[-] An unknown error has occured (%d)\n\n", resp);
 	}

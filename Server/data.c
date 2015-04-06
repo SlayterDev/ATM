@@ -44,6 +44,23 @@ User userFromString(char *string, int newUser) {
 	return user;
 }
 
+Transaction transFromString(char *buffer) {
+	Transaction t;
+	char *tok = strtok(buffer, " "); // user id
+	t.userid = atoi(tok);
+
+	tok = strtok(NULL, " "); // trans id
+	t.transid = atoi(tok);
+
+	tok = strtok(NULL, " "); // description
+	strcpy(t.desc, tok);
+
+	tok = strtok(NULL, " "); // amount
+	t.amount = atoi(tok);
+
+	return t;
+}
+
 Session *sessionForSockfd(int sockfd) {
 	for (int i = 0; i < numSessions; i++) {
 		if (sessions[i]->sockfd == sockfd)
@@ -51,6 +68,24 @@ Session *sessionForSockfd(int sockfd) {
 	}
 
 	return NULL;
+}
+
+void writeTransactions() {
+	FILE *f = fopen(TRANSACTIONS_DB, "w");
+
+	if (!f) {
+		fprintf(stderr, "Could not open transaction database\n");
+		exit(1);
+	}
+
+	for (int i = 0; i < numTransactions; i++) {
+		fprintf(f, "%d %d %s %d\n", transactions[i].userid, transactions[i].transid,
+				transactions[i].desc, transactions[i].amount);
+	}
+
+	fclose(f);
+
+	printf("Transactions written to database.\n");
 }
 
 void writeUsers() {
@@ -69,6 +104,7 @@ void writeUsers() {
 	fclose(f);
 
 	printf("Users written to database.\n");
+	writeTransactions();
 }
 
 void intHandler() {
@@ -95,7 +131,10 @@ int checkDuplicateUsers(char *buffer) {
 }
 
 int addNewUser(char *buffer) {
-	if (!checkDuplicateUsers(buffer))
+	char temp[strlen(buffer)+1];
+	strcpy(temp, buffer);
+	
+	if (!checkDuplicateUsers(temp))
 		return 0; // User already exists
 
 	User u = userFromString(buffer, 1);
@@ -104,6 +143,28 @@ int addNewUser(char *buffer) {
 	printUser(u);
 	
 	return 1;
+}
+
+void readTransactions() {
+	numTransactions = 0;
+	if (access(TRANSACTIONS_DB, F_OK) != -1) {
+		// Transaction database exists
+		FILE *f = fopen(TRANSACTIONS_DB, "r");
+
+		char buffer[150];
+		while (fgets(buffer, 150, f) != NULL) {
+			// trim newline
+			buffer[strlen(buffer)-1] = '\0';
+
+			// check for empty string
+			if (strlen(buffer) <= 0)
+				break;
+
+			transactions[numTransactions++] = transFromString(buffer);
+		}
+
+		fclose(f);
+	}
 }
 
 void readUsers() {
@@ -128,6 +189,8 @@ void readUsers() {
 
 		fclose(f);
 	}
+
+	readTransactions();
 
 	signal(SIGINT, intHandler);
 }
@@ -186,4 +249,65 @@ int loginUser(int sockfd, char *buffer) {
 	}
 
 	return 203;
+}
+
+int getNextTransactionId(int userid) {
+	int transid = 0;
+
+	for (int i = 0; i < numTransactions; i++)  {
+		if (transactions[i].userid == userid)
+			transid++;
+	}
+
+	return transid;
+}
+
+void recordTransaction(int sockfd, const char *type, int amount) {
+	Session *s = sessionForSockfd(sockfd);
+	Transaction t;
+
+	t.userid = s->user->id;
+	t.transid = getNextTransactionId(t.userid);
+	strcpy(t.desc, type);
+	t.amount = amount;
+	transactions[numTransactions] = t;
+	numTransactions++;
+}
+
+int getTransactionsForUser(int sockfd, Transaction *tArray, int numRequested) {
+	int numFound = 0;
+
+	Session *s = sessionForSockfd(sockfd);
+	int j = 0;
+	for (int i = numTransactions-1; i >= 0; i--) {
+		if (transactions[i].userid == s->user->id) {
+			tArray[j] = transactions[i];
+			j++;
+			numFound++;
+
+			if (numFound == numRequested)
+				break;
+		}
+	}
+
+	return numFound;
+}
+
+int logoutUser(int sockfd) {
+	// close the session
+	Session *s = sessionForSockfd(sockfd);
+
+	if (!s)
+		return 909;
+
+	free(s);
+
+	for (int i = 0; i < numSessions; i++) {
+		if (sessions[i] == NULL)
+			sessions[i] = sessions[numSessions-1];
+	}
+
+	numSessions--;
+
+	return 803;
 }
