@@ -217,6 +217,7 @@ int loginUser(int sockfd, char *buffer) {
 
 	if (!sessionFound) { // newSession
 		s->sockfd = sockfd;
+		s->loginAttempts = 0;
 		sessions[numSessions] = s;
 		numSessions++;
 	}

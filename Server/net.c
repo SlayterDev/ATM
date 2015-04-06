@@ -66,22 +66,20 @@ void beginServer(int portnum) {
 	clilen = sizeof(cli_addr);
 
 	int clientNo = 0;
-	while (clientNo < MAX_CLIENTS) {
+	while (1) {
 		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t *)&clilen);
 		if (newsockfd < 0) {
 			fprintf(stderr, "ERROR accepting connection\n");
 			exit(1);
 		}
 
-		if (pthread_create(&clients[clientNo], NULL, serverLoop, (void *)(intptr_t)newsockfd)) {
+		pthread_t thread;
+
+		if (pthread_create(&thread, NULL, serverLoop, (void *)(intptr_t)newsockfd)) {
 			fprintf(stderr, "ERROR creating thread\n");
 			exit(1);
 		}
 
 		clientNo++;		
-	}
-
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		pthread_join(clients[i], NULL);
 	}
 }
