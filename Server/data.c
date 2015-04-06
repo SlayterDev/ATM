@@ -230,7 +230,7 @@ int loginUser(int sockfd, char *buffer) {
 			s->loginAttempts = 0;
 
 			return 205;
-		} else {
+		} else if (!strcmp(users[i].firstName, first)) {
 			s->loginAttempts++;
 			if (s->loginAttempts >= 10) {
 				// close the session
