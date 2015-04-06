@@ -21,10 +21,11 @@ User users[100];
 
 typedef struct {
 	int sockfd;
-	User user;
+	User *user;
+	int loginAttempts;
 } Session;
 
-Session sessions[MAX_CLIENTS];
+Session *sessions[MAX_CLIENTS];
 
 int numSessions;
 int numUsers;
@@ -32,5 +33,6 @@ int numUsers;
 void readUsers();
 int addNewUser(char *buffer);
 int loginUser(int sockfd, char *buffer);
+Session *sessionForSockfd(int sockfd);
 
 #endif

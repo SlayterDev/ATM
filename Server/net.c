@@ -28,6 +28,8 @@ void *serverLoop(void *sockfdPtr) {
 			fprintf(stderr, "ERROR writing to socket\n");
 			pthread_exit(&ret);
 		}
+
+		memset(buffer, 0, 255);
 	}
 
 	printf("Connection closed\n");
@@ -63,7 +65,7 @@ void beginServer(int portnum) {
 
 	int clientNo = 0;
 	while (clientNo < MAX_CLIENTS) {
-		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t *)&clilen);
 		if (newsockfd < 0) {
 			fprintf(stderr, "ERROR accepting connection\n");
 			exit(1);

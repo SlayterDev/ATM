@@ -44,6 +44,15 @@ User userFromString(char *string, int newUser) {
 	return user;
 }
 
+Session *sessionForSockfd(int sockfd) {
+	for (int i = 0; i < numSessions; i++) {
+		if (sessions[i]->sockfd == sockfd)
+			return sessions[i];
+	}
+
+	return NULL;
+}
+
 void writeUsers() {
 	FILE *f = fopen(USERS_DB, "w");
 
@@ -134,19 +143,47 @@ int loginUser(int sockfd, char *buffer) {
 	tok = strtok(NULL, " ");
 	strcpy(pin, tok);
 
+	int sessionFound = 0;
+	Session *s = (Session *)malloc(sizeof(Session));
+	for (int i = 0; i < numSessions; i++) {
+		if (sessions[i]->sockfd == sockfd) {
+			s = sessions[i];
+			sessionFound = 1;
+		}
+	}
+
+	if (!sessionFound) { // newSession
+		s->sockfd = sockfd;
+		sessions[numSessions] = s;
+		numSessions++;
+	}
+
 	printf("Checking %s %s...\n", first, pin);
 	for (int i = 0; i < numUsers; i++) {
 		if (!strcmp(users[i].firstName, first) && !strcmp(users[i].pin, pin)) {
 			// We got a user
-			Session s;
-			s.sockfd = sockfd;
-			s.user = users[i];
-			sessions[numSessions] = s;
-			numSessions++;
+			s->user = &users[i];
+			s->loginAttempts = 0;
 
-			return 1;
+			return 205;
+		} else {
+			s->loginAttempts++;
+			if (s->loginAttempts >= 10) {
+				// close the session
+				free(s);
+
+				// Rearange the array
+				for (int i = 0; i < numSessions; i++) {
+					if (sessions[i] == NULL)
+						sessions[i] = sessions[numSessions-1];
+				}
+
+				numSessions--;
+
+				return 204;
+			}
 		}
 	}
 
-	return 0;
+	return 203;
 }
