@@ -20,11 +20,14 @@ int processRequest(int sockfd, char *message) {
 			if (addNewUser(message))
 				writeToClient(sockfd, "104");
 			else
-				writeToClient(sockfd, "103");
+				writeToClient(sockfd, "105");
 			break;
 		case 201:
 			printf("Log in requested...\n");
-			writeToClient(sockfd, "205");
+			if (loginUser(sockfd, message))
+				writeToClient(sockfd, "205");
+			else
+				writeToClient(sockfd, "203");
 			break;
 		default:
 			break;

@@ -67,7 +67,28 @@ void intHandler() {
 	exit(0);
 }
 
+int checkDuplicateUsers(char *buffer) {
+	char first[21];
+	char last[21];
+
+	char *tok = strtok(buffer, " "); // tok holds 101
+	tok = strtok(NULL, " "); // tok holds first name
+	strcpy(first, tok);
+	tok = strtok(NULL, " "); // tok holds last name
+	strcpy(last, tok);
+
+	for (int i = 0; i < numUsers; i++) {
+		if (!strcmp(users[i].lastName, last) && !strcmp(users[i].firstName, first))
+			return 0;
+	}
+
+	return 1;
+}
+
 int addNewUser(char *buffer) {
+	if (!checkDuplicateUsers(buffer))
+		return 0; // User already exists
+
 	User u = userFromString(buffer, 1);
 	users[numUsers-1] = u;
 	printf("Adding ");
@@ -78,6 +99,7 @@ int addNewUser(char *buffer) {
 
 void readUsers() {
 	numUsers = 0;
+	numSessions = 0;
 	if (access(USERS_DB, F_OK) != -1) {
 		// User database exists
 		FILE *f = fopen(USERS_DB, "r");
@@ -101,3 +123,30 @@ void readUsers() {
 	signal(SIGINT, intHandler);
 }
 
+int loginUser(int sockfd, char *buffer) {
+	char first[21];
+	char pin[5];
+
+	char *tok = strtok(buffer, " "); // get rid of request code
+	tok = strtok(NULL, " ");
+	strcpy(first, tok);
+
+	tok = strtok(NULL, " ");
+	strcpy(pin, tok);
+
+	printf("Checking %s %s...\n", first, pin);
+	for (int i = 0; i < numUsers; i++) {
+		if (!strcmp(users[i].firstName, first) && !strcmp(users[i].pin, pin)) {
+			// We got a user
+			Session s;
+			s.sockfd = sockfd;
+			s.user = users[i];
+			sessions[numSessions] = s;
+			numSessions++;
+
+			return 1;
+		}
+	}
+
+	return 0;
+}

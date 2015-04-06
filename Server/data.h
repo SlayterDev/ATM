@@ -19,9 +19,18 @@ typedef struct {
 
 User users[100];
 
+typedef struct {
+	int sockfd;
+	User user;
+} Session;
+
+Session sessions[MAX_CLIENTS];
+
+int numSessions;
 int numUsers;
 
 void readUsers();
 int addNewUser(char *buffer);
+int loginUser(int sockfd, char *buffer);
 
 #endif
