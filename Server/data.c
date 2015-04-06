@@ -236,9 +236,11 @@ int loginUser(int sockfd, char *buffer) {
 				free(s);
 
 				// Rearange the array
-				for (int i = 0; i < numSessions; i++) {
-					if (sessions[i] == NULL)
-						sessions[i] = sessions[numSessions-1];
+				if (numSessions > 1) {
+					for (int i = 0; i < numSessions; i++) {
+						if (sessions[i] == NULL)
+							sessions[i] = sessions[numSessions-1];
+					}
 				}
 
 				numSessions--;
@@ -302,9 +304,11 @@ int logoutUser(int sockfd) {
 
 	free(s);
 
-	for (int i = 0; i < numSessions; i++) {
-		if (sessions[i] == NULL)
-			sessions[i] = sessions[numSessions-1];
+	if (numSessions > 1) {
+		for (int i = 0; i < numSessions; i++) {
+			if (sessions[i] == NULL)
+				sessions[i] = sessions[numSessions-1];
+		}	
 	}
 
 	numSessions--;
