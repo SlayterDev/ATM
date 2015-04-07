@@ -2,6 +2,9 @@
 
 #define DATA_FILE "data.txt"
 
+// Called when a file could not be opened
+// The function will close the connection to the server and
+// quit the application
 void failure() {
 	fprintf(stderr, "[-] Could not open data file\n");
 	close(sockDesc);

@@ -1,6 +1,8 @@
 #include <signal.h>
 #include "net.h"
 
+// Keyboard Interrupt handler to properly close connection
+// with server
 void sigtermHandler(int signum) {
 	close(sockDesc);
 	printf("[+] Socket closed\n");
@@ -46,21 +48,24 @@ void initNet(int portNum, const char *host) {
 int sendMessage(char *message) {
 	if (send(sockDesc, message, strlen(message), 0) < 0) {
 		fprintf(stderr, "[-] Failed to send message\n");
+		close(sockDesc);
 		exit(1);
 	}
 
 	char serverReply[100];
 	if (recv(sockDesc, serverReply, 100, 0) < 0) {
 		fprintf(stderr, "[-] Failed to receive message\n");
+		close(sockDesc);
 		exit(1);
 	}
 
 	// Flush the buffer
+	// Sometimes garbage gets stuck in buffer when using the
+	// tester program
 	char ch;
 	while ((ch = getchar()) != '\n' && ch != EOF);
 
-	//getchar();
-
+	// Convert response code into an int
 	int resp = atoi(serverReply);
 
 	return resp;
@@ -69,12 +74,14 @@ int sendMessage(char *message) {
 char *sendMessageWithResponse(char *message) {
 	if (send(sockDesc, message, strlen(message), 0) < 0) {
 		fprintf(stderr, "[-] Failed to send message\n");
+		close(sockDesc);
 		exit(1);
 	}
 
-	char serverReply[2000] = ""; // Can't be to careful
+	char serverReply[2000] = ""; // Can't be too careful
 	if (recv(sockDesc, serverReply, 2000, 0) < 0) {
 		fprintf(stderr, "[-] Failed to receive message\n");
+		close(sockDesc);
 		exit(1);
 	}
 
@@ -82,6 +89,8 @@ char *sendMessageWithResponse(char *message) {
 	strcpy(response, serverReply);
 
 	// Flush the buffer
+	// Sometimes garbage gets stuck in buffer when using the
+	// tester program
 	char ch;
 	while ((ch = getchar()) != '\n' && ch != EOF);
 

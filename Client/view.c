@@ -2,6 +2,7 @@
 #include "net.h"
 #include "fileUtils.h"
 
+// Buffer sizes for messages sent to the server
 #define ACCOUNT_BUFFER_SIZE 	111
 #define LOGIN_BUFFER_SIZE 		30
 #define AMOUNT_BUFFER_SIZE 		15
@@ -330,6 +331,7 @@ void logout() {
 		printf("[+] You have been logged out\n");
 		printf("[+] Thank you for using our ATM\n\n");
 
+		// Close connection to server
 		close(sockDesc);
 		exit(0);
 	} else {
@@ -410,6 +412,8 @@ void login() {
 		case 204:
 			printf("[-] Too many failed login attempts.\n");
 			printf("[-] Terminating...\n");
+
+			// Close connection to server as dictated by the protocol
 			close(sockDesc);
 			exit(1);
 			break;
@@ -441,7 +445,7 @@ void welcome() {
 				login();
 				c = '2';
 				break;
-			case '3':
+			case '3': // Quit
 				return;
 				break;
 			default:

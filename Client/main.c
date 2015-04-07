@@ -11,14 +11,18 @@ int main(int argc, char const *argv[]) {
 		return 1;
 	}
 
-	system("clear");
+	system("clear"); // clear the screen
 
+	// Begin communicating with server
 	initNet(atoi(argv[1]), (argc == 3) ? argv[2] : NULL);
 
+	// Load info from the data files
 	loadData();
 
+	// Begin main application logic
 	welcome();
 
+	// Close connection with server
 	close(sockDesc);
 	debugPrints("[+] Socket closed\n");
 
