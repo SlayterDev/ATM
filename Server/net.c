@@ -11,6 +11,7 @@ int writeToClient(int sockfd, char *message) {
 	return 0;
 }
 
+// Loop started for each thread
 void *serverLoop(void *sockfdPtr) {
 	printf("Recieved Connection!\n");
 
@@ -22,7 +23,6 @@ void *serverLoop(void *sockfdPtr) {
 	while ((n = read(sockfd, buffer, 255)) > 0) {
 		printf("Recieved: %s\n", buffer);
 		processRequest(sockfd, buffer);
-		//n = write(sockfd, "203", 3);
 
 		if (n < 0) {
 			fprintf(stderr, "ERROR writing to socket\n");

@@ -6,6 +6,7 @@ void printUser(User user) {
 				user.pin, user.dl, user.ssn, user.email, user.balance);
 }
 
+// Return a user struct from string
 User userFromString(char *string, int newUser) {
 	User user;
 	char *tok = strtok(string, " "); // tok has user id
@@ -20,30 +21,32 @@ User userFromString(char *string, int newUser) {
 	tok = strtok(NULL, " "); // tok has last name
 	strcpy(user.lastName, tok);
 
-	tok = strtok(NULL, " ");
+	tok = strtok(NULL, " "); // tok has pin
 	strcpy(user.pin, tok);
 
-	tok = strtok(NULL, " ");
+	tok = strtok(NULL, " "); // tok has DL
 	strcpy(user.dl, tok);
 
-	tok = strtok(NULL, " ");
+	tok = strtok(NULL, " "); // tok has SSN
 	strcpy(user.ssn, tok);
 
-	tok = strtok(NULL, " ");
+	tok = strtok(NULL, " "); // tok has email
 	strcpy(user.email, tok);
 
 	if (!newUser) {
-		tok = strtok(NULL, " ");
+		tok = strtok(NULL, " "); // tok has balance
 		user.balance = atoi(tok);
 	} else {
 		user.balance = 0;
 	}
 
-	printUser(user);
+	if (DEBUG)
+		printUser(user);
 
 	return user;
 }
 
+// Return a transaction struct from a string
 Transaction transFromString(char *buffer) {
 	Transaction t;
 	char *tok = strtok(buffer, " "); // user id
@@ -64,10 +67,10 @@ Transaction transFromString(char *buffer) {
 Session *sessionForSockfd(int sockfd) {
 	for (int i = 0; i < numSessions; i++) {
 		if (sessions[i]->sockfd == sockfd)
-			return sessions[i];
+			return sessions[i]; // Found the existing session
 	}
 
-	return NULL;
+	return NULL; // Session not yet started
 }
 
 void writeTransactions() {
@@ -79,6 +82,7 @@ void writeTransactions() {
 	}
 
 	for (int i = 0; i < numTransactions; i++) {
+		// print each transaction to the file
 		fprintf(f, "%d %d %s %d\n", transactions[i].userid, transactions[i].transid,
 				transactions[i].desc, transactions[i].amount);
 	}
@@ -97,6 +101,7 @@ void writeUsers() {
 	}
 
 	for (int i = 0; i < numUsers; i++) {
+		// print each user to the file
 		fprintf(f, "%d %s %s %s %s %s %s %d\n", users[i].id, users[i].firstName, users[i].lastName,
 				users[i].pin, users[i].dl, users[i].ssn, users[i].email, users[i].balance);
 	}
@@ -104,14 +109,16 @@ void writeUsers() {
 	fclose(f);
 
 	printf("Users written to database.\n");
-	writeTransactions();
+	writeTransactions(); // Save the transactions
 }
 
+// Keyboard interrupt handler
 void intHandler() {
-	writeUsers();
+	writeUsers(); // Save the data
 	exit(0);
 }
 
+// See if a user already exists
 int checkDuplicateUsers(char *buffer) {
 	char first[21];
 	char last[21];
@@ -124,13 +131,15 @@ int checkDuplicateUsers(char *buffer) {
 
 	for (int i = 0; i < numUsers; i++) {
 		if (!strcmp(users[i].lastName, last) && !strcmp(users[i].firstName, first))
-			return 0;
+			return 0; // User already exists
 	}
 
-	return 1;
+	return 1; // User does not exist
 }
 
 int addNewUser(char *buffer) {
+	// Create a temp copy of buffer to not
+	// overwrite the buffer
 	char temp[strlen(buffer)+1];
 	strcpy(temp, buffer);
 	
@@ -190,8 +199,10 @@ void readUsers() {
 		fclose(f);
 	}
 
-	readTransactions();
+	readTransactions(); // Populate the transactions DB
 
+	// Reegister a keyboard interrupt handler to safely
+	// save the databases before the program terminates
 	signal(SIGINT, intHandler);
 }
 
@@ -229,7 +240,7 @@ int loginUser(int sockfd, char *buffer) {
 			s->user = &users[i];
 			s->loginAttempts = 0;
 
-			return 205;
+			return 205; // Login success
 		} else if (!strcmp(users[i].firstName, first)) {
 			s->loginAttempts++;
 			if (s->loginAttempts >= 10) {
@@ -246,14 +257,15 @@ int loginUser(int sockfd, char *buffer) {
 
 				numSessions--;
 
-				return 204;
+				return 204; // Login attempts exceeded
 			}
 		}
 	}
 
-	return 203;
+	return 203; // Login failed
 }
 
+// Get the next id to assign to a new transaction
 int getNextTransactionId(int userid) {
 	int transid = 0;
 
@@ -293,7 +305,7 @@ int getTransactionsForUser(int sockfd, Transaction *tArray, int numRequested) {
 		}
 	}
 
-	return numFound;
+	return numFound; // Real number of transactions
 }
 
 int logoutUser(int sockfd) {
@@ -301,11 +313,12 @@ int logoutUser(int sockfd) {
 	Session *s = sessionForSockfd(sockfd);
 
 	if (!s)
-		return 909;
+		return 909; // Unknown error
 
 	free(s);
 
 	if (numSessions > 1) {
+		// Rearrange the sessions array
 		for (int i = 0; i < numSessions; i++) {
 			if (sessions[i] == NULL)
 				sessions[i] = sessions[numSessions-1];
@@ -314,5 +327,5 @@ int logoutUser(int sockfd) {
 
 	numSessions--;
 
-	return 803;
+	return 803; // Logout success
 }

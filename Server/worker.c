@@ -2,6 +2,7 @@
 #include "net.h"
 #include "data.h"
 
+// Get the request code as an integer
 int getCode(char *message) {
 	char code[4];
 	int i;

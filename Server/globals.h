@@ -16,10 +16,4 @@
 #include <ctype.h>
 #include <pthread.h>
 
-// Socket descriptor. Refers to the socket after creation.
-int sockDesc;
-
-// Server struct. Holds all connection info for the server.
-struct sockaddr_in server;
-
 #endif
