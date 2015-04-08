@@ -20,6 +20,7 @@ void *serverLoop(void *sockfdPtr) {
 	int n, ret = 1;
 	char buffer[256];
 
+	memset(buffer, 0, 256);
 	while ((n = read(sockfd, buffer, 255)) > 0) {
 		printf("Recieved: %s\n", buffer);
 		processRequest(sockfd, buffer);
